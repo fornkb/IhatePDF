@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="ihatepdf-token" content="{{ token }}">
+  <meta name="office-ready" content="{{ 'true' if office_ready else 'false' }}">
+  <title>IhatePDF · Local & simple</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23272725'/%3E%3Cpath d='M10 8h8l5 5v11H10z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script type="application/json" id="tool-data">{{ tools|tojson }}</script>
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+<body>
+  <aside class="sidebar" aria-label="PDF tools">
+    <a class="brand" href="#" aria-label="IhatePDF home"><span class="brand-mark">I<span>·</span></span><span>IhatePDF<small>Little tools. Less effort.</small></span></a>
+    <button class="nav-all active" id="all-tools"><span data-icon="grid"></span>All tools<span class="count">19</span></button>
+    <nav id="tool-nav" aria-label="Choose a tool"></nav>
+    <div class="sidebar-footer"><span class="status-dot"></span>Local & private<small>Your files stay on this computer.</small></div>
+  </aside>
+  <main>
+    <header class="topbar"><span class="breadcrumb" id="breadcrumb">Your PDF workspace</span><span class="local-badge"><span class="status-dot"></span>On your computer</span></header>
+    <section class="home" id="home" aria-label="All tools">
+      <div class="intro"><span class="eyebrow">EVERYDAY DOCUMENTS, SORTED.</span><h1>A little help<br>with your PDFs.</h1><p>Merge, convert, and fine-tune your files.<br>Everything you need, in one quiet place.</p></div>
+      <div class="catalog-bar"><div class="filters" id="filters" aria-label="Tool categories"><button class="filter active" data-category="All">All tools</button><button class="filter" data-category="Organize">Organize</button><button class="filter" data-category="Convert">Convert</button><button class="filter" data-category="Enhance">Enhance</button><button class="filter" data-category="Security">Security</button></div><label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Find a tool…" aria-label="Find a tool"></label></div>
+      <div class="tool-grid" id="tool-grid"></div>
+      <p class="empty-search" id="empty-search" hidden>No tools match. Try another search.</p>
+      <footer class="home-footer"><span data-icon="shield"></span>No uploads to the cloud. No accounts. Just your files.</footer>
+    </section>
+    <section class="workspace" id="workspace" hidden aria-label="Selected tool">
+      <button class="back" id="back"><span data-icon="back"></span>All tools</button>
+      <div class="workspace-heading"><div class="tool-icon" id="selected-icon"></div><div><h1 id="tool-title"></h1><p id="tool-description"></p></div></div>
+      <div class="office-note" id="office-note" hidden><span data-icon="info"></span><div>LibreOffice is needed for this conversion. <a href="https://www.libreoffice.org/download/download-libreoffice/" target="_blank" rel="noreferrer">Get LibreOffice</a>, then restart IhatePDF.</div></div>
+      <form id="process-form">
+        <section class="panel upload-panel"><div class="panel-heading"><h2>Choose your files</h2><span class="subtle" id="input-kind">PDF files</span></div>
+          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choose files or drop them here"><span class="upload-icon" data-icon="upload"></span><strong>Drop your files here</strong><span>or <span class="browse">browse files</span></span><small>Up to 256 MB per operation</small></div>
+          <input type="file" id="files" multiple hidden>
+          <div id="file-list" class="file-list" aria-label="Selected files"></div>
+          <div class="file-actions" id="file-actions" hidden><span class="subtle" id="file-summary"></span><button type="button" class="text-button" id="add-files">Add files</button><button type="button" class="text-button muted" id="clear-files">Clear</button></div>
+          <p class="field-hint" id="order-hint" hidden>Files are combined in this order. Use the arrows to rearrange them.</p>
+        </section>
+        <section class="panel settings-panel"><div class="panel-heading"><h2>Make it yours</h2><span class="subtle">Settings</span></div><div class="fields" id="tool-fields"></div>
+          <div id="image-field" class="auxiliary" hidden><label for="watermark-image">Watermark image</label><input id="watermark-image" type="file" accept="image/*"></div>
+          <details class="advanced" id="advanced"><summary>More options<span data-icon="chevron"></span></summary><div class="fields advanced-fields"><div id="password-field"><label for="input-password">Input PDF password</label><input type="password" id="input-password" autocomplete="off" placeholder="Only if your PDF is protected"><small>One shared password for all files. Outputs have no password unless you use Protect PDF.</small></div><div id="font-field" hidden><label for="font">Custom font</label><input id="font" type="file" accept=".ttf,.otf"><small>Use a font that supports your text.</small></div></div></details>
+          <p class="field-hint" id="settings-hint"></p>
+        </section>
+        <div class="run-row"><p><span data-icon="shield"></span>Your originals stay untouched.</p><button type="submit" class="primary" id="process-button" disabled><span id="action-text">Process files</span><span data-icon="arrow"></span></button></div>
+      </form>
+      <div class="notice error" id="error" role="alert" hidden></div>
+      <section class="panel results" id="results" hidden aria-live="polite"><div class="panel-heading"><div><span class="eyebrow success-label">ALL SET</span><h2 id="result-title">Your files are ready.</h2></div><a class="secondary" id="download-all" href="#">Download all<span data-icon="download"></span></a></div><div id="result-notes"></div><div id="result-files"></div><div id="result-details"></div><p class="field-hint">Downloads stay available for one hour, while this app is running.</p></section>
+    </section>
+  </main>
+</body>
+</html>
+
