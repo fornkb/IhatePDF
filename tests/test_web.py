@@ -194,6 +194,7 @@ def test_filename_traversal_is_sanitized(client, app, sample):
 
 @pytest.mark.parametrize("tool,filename", [("word-to-pdf", "document.docx"), ("ppt-to-pdf", "slides.pptx"), ("office-to-pdf", "sheet.xlsx")])
 def test_office_uploads_have_actionable_dependency_error(client, app, sample, monkeypatch, tool, filename):
+    monkeypatch.setattr("ihatepdf.office.powerpoint_available", lambda: False)
     monkeypatch.setattr("ihatepdf.office.find_libreoffice", lambda explicit=None: None)
     response = client.post("/api/process", data={"tool": tool, "files": (BytesIO(b"office file"), filename)}, headers={"X-IhatePDF-Token": app.config["CSRF_TOKEN"]})
     assert response.status_code == 400 and "LibreOffice" in response.json["error"]

@@ -1,4 +1,5 @@
 PyMuPDF>=1.26.7,<2
 Pillow>=10,<13
 Flask>=3.1,<4
+pywin32>=310; sys_platform == "win32"
 

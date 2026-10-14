@@ -1,6 +1,6 @@
 "use strict";
 const tools = JSON.parse(document.getElementById("tool-data").textContent);
-const officeReady = document.querySelector('meta[name="office-ready"]').content === "true";
+const officeBackends = JSON.parse(document.getElementById("office-backends").textContent);
 const token = document.querySelector('meta[name="ihatepdf-token"]').content;
 const $ = id => document.getElementById(id);
 const paths = {
@@ -72,7 +72,9 @@ function selectTool(id) {
   $("all-tools").classList.remove("active"); document.querySelectorAll(".nav-tool").forEach(node => node.classList.toggle("active", node.dataset.tool === id));
   $("breadcrumb").textContent = `${selected.category} / ${selected.title}`; $("tool-title").textContent = selected.title; $("tool-description").textContent = selected.description;
   $("selected-icon").className = `tool-icon ${selected.category.toLowerCase()}`; $("selected-icon").innerHTML = icon(selected.icon);
-  $("action-text").textContent = selected.action; $("office-note").hidden = !selected.office || officeReady;
+  $("action-text").textContent = selected.action;
+  $("office-note").hidden = !selected.office || officeBackends.libreoffice || selected.id === "ppt-to-pdf" && officeBackends.powerpoint;
+  $("office-message").textContent = selected.id === "ppt-to-pdf" ? "This conversion needs Microsoft PowerPoint on Windows or LibreOffice. " : selected.id === "office-to-pdf" && officeBackends.powerpoint ? "PPT and PPTX can use PowerPoint. Other Office formats need LibreOffice. " : "LibreOffice is needed for this conversion. ";
   const accepts = { pdf:".pdf", images:".jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff,.gif", word:".doc,.docx,.odt,.rtf", ppt:".ppt,.pptx,.odp", office:".doc,.docx,.odt,.rtf,.ppt,.pptx,.odp,.xls,.xlsx,.ods" };
   $("files").accept = accepts[selected.input || "pdf"];
   $("input-kind").textContent = {pdf:"PDF files",images:"Images",word:"Word documents",ppt:"Presentations",office:"Office documents"}[selected.input || "pdf"];
@@ -80,6 +82,7 @@ function selectTool(id) {
   $("font-field").hidden = !["watermark", "number"].includes(id);
   $("advanced").hidden = selected.office || selected.input === "images"; $("advanced").open = id === "unlock";
   $("settings-hint").textContent = id === "crop" ? "Cropping changes the visible area; content outside it remains in the file." : id === "compress" ? "Savings depend on your document. Already optimized files may grow." : id === "text" ? "Reads existing text. Image-only pages contain no extractable text." : !selected.fields.length ? "Ready to go. No extra settings needed." : "";
+  if (id === "ppt-to-pdf" && officeBackends.powerpoint) $("settings-hint").textContent = "PPT and PPTX use your installed Microsoft PowerPoint. ODP files require LibreOffice.";
   $("tool-fields").replaceChildren();
   for (const field of selected.fields) {
     const wrapper = element("div", "field"); wrapper.dataset.field = field.name;

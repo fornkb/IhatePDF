@@ -16,7 +16,7 @@ from werkzeug.utils import secure_filename
 
 from . import core
 from .catalog import TOOLS, TOOL_MAP
-from .office import OFFICE_EXTENSIONS, PPT_EXTENSIONS, WORD_EXTENSIONS, find_libreoffice, office_to_pdf
+from .office import OFFICE_EXTENSIONS, PPT_EXTENSIONS, WORD_EXTENSIONS, conversion_status, office_to_pdf
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff", ".gif"}
 
@@ -155,19 +155,14 @@ def create_app(work_root: Path | None = None) -> Flask:
         response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
         return response
 
-    def office_status():
-        try:
-            return bool(find_libreoffice())
-        except ValueError:
-            return False
-
     @app.get("/")
     def index():
-        return render_template("index.html", tools=TOOLS, token=app.config["CSRF_TOKEN"], office_ready=office_status())
+        return render_template("index.html", tools=TOOLS, token=app.config["CSRF_TOKEN"], office_backends=conversion_status())
 
     @app.get("/api/status")
     def status():
-        return jsonify(office_ready=office_status(), tools=len(TOOLS))
+        backends = conversion_status()
+        return jsonify(office_ready=backends["libreoffice"], office_backends=backends, tools=len(TOOLS))
 
     @app.post("/api/process")
     def process():

@@ -2,13 +2,26 @@
 
 from pathlib import Path
 import os
+import socket
+import sys
 import tempfile
 import threading
 import webbrowser
 
-from werkzeug.serving import make_server
+from werkzeug.serving import BaseWSGIServer
 
 from .web import create_app
+
+
+class LocalServer(BaseWSGIServer):
+    # Windows SO_REUSEADDR permits two servers to bind the same port. An old
+    # preview could then serve stale HTML together with the new static files.
+    allow_reuse_address = False
+
+    def server_bind(self):
+        if sys.platform == "win32":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 def main() -> int:
@@ -26,7 +39,7 @@ def main() -> int:
         app = create_app(Path(work))
         try:
             # PyMuPDF operations run sequentially; the engine is not thread-safe.
-            server = make_server("127.0.0.1", port, app, threaded=False)
+            server = LocalServer("127.0.0.1", port, app)
         except (OSError, SystemExit):
             print(f"Port {port} is in use. Close the other app or set IHATEPDF_PORT to another port.")
             return 1

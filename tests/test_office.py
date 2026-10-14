@@ -6,6 +6,12 @@ import pytest
 from ihatepdf import office
 
 
+@pytest.fixture(autouse=True)
+def no_native_powerpoint(monkeypatch):
+    # Unit tests never open the user's desktop PowerPoint.
+    monkeypatch.setattr(office, "powerpoint_available", lambda: False)
+
+
 def test_missing_libreoffice_is_actionable(tmp_path, monkeypatch):
     monkeypatch.setattr(office, "find_libreoffice", lambda explicit=None: None)
     input = tmp_path / "report.docx"

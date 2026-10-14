@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "IhatePDF: local PDF tools with a minimal Python web interface"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["PyMuPDF>=1.26.7,<2", "Pillow>=10,<13", "Flask>=3.1,<4"]
+dependencies = ["PyMuPDF>=1.26.7,<2", "Pillow>=10,<13", "Flask>=3.1,<4", "pywin32>=310; sys_platform == 'win32'"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10"]

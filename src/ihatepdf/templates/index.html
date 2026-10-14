@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="ihatepdf-token" content="{{ token }}">
-  <meta name="office-ready" content="{{ 'true' if office_ready else 'false' }}">
   <title>IhatePDF · Local & simple</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23272725'/%3E%3Cpath d='M10 8h8l5 5v11H10z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
   <script type="application/json" id="tool-data">{{ tools|tojson }}</script>
+  <script type="application/json" id="office-backends">{{ office_backends|tojson }}</script>
   <script defer src="{{ url_for('static', filename='app.js') }}"></script>
 </head>
 <body>
@@ -30,7 +30,7 @@
     <section class="workspace" id="workspace" hidden aria-label="Selected tool">
       <button class="back" id="back"><span data-icon="back"></span>All tools</button>
       <div class="workspace-heading"><div class="tool-icon" id="selected-icon"></div><div><h1 id="tool-title"></h1><p id="tool-description"></p></div></div>
-      <div class="office-note" id="office-note" hidden><span data-icon="info"></span><div>LibreOffice is needed for this conversion. <a href="https://www.libreoffice.org/download/download-libreoffice/" target="_blank" rel="noreferrer">Get LibreOffice</a>, then restart IhatePDF.</div></div>
+      <div class="office-note" id="office-note" hidden><span data-icon="info"></span><div><span id="office-message">LibreOffice is needed for this conversion. </span><a href="https://www.libreoffice.org/download/download-libreoffice/" target="_blank" rel="noreferrer">Get LibreOffice</a>, then restart IhatePDF.</div></div>
       <form id="process-form">
         <section class="panel upload-panel"><div class="panel-heading"><h2>Choose your files</h2><span class="subtle" id="input-kind">PDF files</span></div>
           <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Choose files or drop them here"><span class="upload-icon" data-icon="upload"></span><strong>Drop your files here</strong><span>or <span class="browse">browse files</span></span><small>Up to 256 MB per operation</small></div>

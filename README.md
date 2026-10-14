@@ -23,11 +23,13 @@ step.
 
 - Python **3.10 or newer**.
 - A modern browser.
-- [LibreOffice](https://www.libreoffice.org/download/download-libreoffice/)
-  **only for Word, PowerPoint, and Excel/Office conversion**.
+- **PPT/PPTX conversion:** Microsoft PowerPoint installed on Windows, or
+  [LibreOffice](https://www.libreoffice.org/download/download-libreoffice/).
+- **Word, Excel, and ODP conversion:** LibreOffice.
 
 Python dependencies are installed with the commands below: Flask, PyMuPDF, and
-Pillow. Node.js and npm are not required.
+Pillow, plus pywin32 on Windows for PowerPoint integration. Node.js and npm are
+not required.
 
 ## Quick start
 
@@ -120,7 +122,29 @@ for example, `Page {page} of {total}`.
 
 ## Office conversion setup
 
-Install LibreOffice and restart IhatePDF. Standard Windows installations are
+On Windows, IhatePDF automatically detects installed **Microsoft PowerPoint**
+and uses its native PDF exporter for PPT and PPTX files, including those uploaded
+through Office to PDF. No LibreOffice installation is needed for those files.
+PowerPoint must be activated and able to open presentations normally.
+Office's file-validation and file-block settings still apply. Some legacy PPT
+files may be refused by PowerPoint; IhatePDF does not bypass those protections.
+
+The Windows Python bridge, pywin32, installs automatically during setup. Existing
+installations can update dependencies with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e .
+```
+
+The converter opens a temporary copy read-only without a presentation window,
+disables macros while opening it, and closes only that temporary presentation.
+It does not quit your PowerPoint application or close other presentations. A
+timeout stops the conversion worker; an Office dialog or temporary presentation
+may need closing manually if PowerPoint gets stuck.
+
+**LibreOffice** handles ODP, Word, and spreadsheet formats and is the fallback
+when PowerPoint is unavailable or native conversion fails. Install LibreOffice
+and restart IhatePDF if you need those conversions. Standard Windows installations are
 detected automatically; on macOS/Linux, an executable available on `PATH` is
 detected. If necessary, configure the executable explicitly with the environment
 variable below.
@@ -137,9 +161,10 @@ export IHATEPDF_LIBREOFFICE="/Applications/LibreOffice.app/Contents/MacOS/soffic
 python3 run.py
 ```
 
-The app uses a private LibreOffice profile, a configurable conversion timeout,
-and validation of the resulting PDF. Office tools show a dependency notice if
-LibreOffice is unavailable. All other tools work without it.
+LibreOffice uses a private profile. Both converters have a configurable timeout
+and validate the resulting PDF. The UI detects PowerPoint separately, so PPT/PPTX
+conversion does not ask for LibreOffice when PowerPoint is available. Non-Office
+tools work without either application.
 
 ## Configuration
 
@@ -184,8 +209,9 @@ IHATEPDF_PORT=9000 IHATEPDF_NO_BROWSER=1 python3 run.py
   changes embedded images while retaining text and vector content.
 - **Cropping is visual, not redaction.** Content outside the visible crop box
   remains in the document. Margins use points: 72 points = 1 inch.
-- **Office fidelity depends on LibreOffice and installed fonts.** Complex layouts
-  can differ from the original. Password-protected Office files are unsupported.
+- **Office fidelity depends on the chosen converter and installed fonts.** Complex
+  layouts can differ from the original. Password-protected Office files are
+  unsupported. Native PowerPoint conversion is available only on Windows.
 - PDF rewrites can invalidate digital signatures and may not preserve every
   unusual document-level feature.
 - Images to PDF uses the first frame of animated or multi-frame image files.
@@ -206,8 +232,10 @@ Install the development dependencies and run the tests:
 
 Tests cover PDF content, page geometry, password round-trips, compression, upload
 validation, batching, ZIP downloads, temporary file cleanup, and local request
-protection. LibreOffice subprocess tests use simulated outputs; real Office
-conversion should also be checked with your installed LibreOffice and documents.
+protection. Office subprocess unit tests use simulated outputs; native PowerPoint
+PPTX conversion has also been checked with a generated presentation on Windows.
+The legacy PPT sample was refused by Office file validation on the test machine.
+Real Office conversion should be checked with representative documents and fonts.
 
 The UI is server-rendered HTML with CSS and plain JavaScript. PDF processing runs
 sequentially because PyMuPDF is not thread-safe.
@@ -223,7 +251,8 @@ sequentially because PyMuPDF is not thread-safe.
 │   ├── web.py              # Upload, processing, and download routes
 │   ├── catalog.py          # Tool definitions and settings
 │   ├── core.py             # PDF and image operations
-│   ├── office.py           # LibreOffice integration
+│   ├── office.py           # Converter detection, routing, and LibreOffice
+│   ├── _powerpoint.py      # Native PowerPoint conversion worker (Windows)
 │   ├── pages.py            # Page-selection parser
 │   ├── output.py           # Safe output publishing
 │   ├── templates/          # HTML
